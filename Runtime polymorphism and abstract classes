@@ -1,0 +1,62 @@
+// Practical 06: Runtime polymorphism and abstract class
+#include <iostream>
+#include <cmath>
+using namespace std;
+
+const double PI = 3.14159265;
+
+// Abstract class: has at least one PURE virtual function (= 0)
+class Shape {
+public:
+    virtual double area() = 0;        // pure virtual: no body, derived MUST define it
+    virtual ~Shape() {                // virtual destructor: needed so delete via
+        cout << "Shape destroyed\n";  // base pointer calls the derived destructor too
+    }
+};
+
+class Circle : public Shape {
+    double radius;
+public:
+    Circle(double r) : radius(r) {}
+    double area() override { return PI * radius * radius; }
+    ~Circle() { cout << "Circle destroyed\n"; }
+};
+
+class Rectangle : public Shape {
+    double length, width;
+public:
+    Rectangle(double l, double w) : length(l), width(w) {}
+    double area() override { return length * width; }
+    ~Rectangle() { cout << "Rectangle destroyed\n"; }
+};
+
+class Triangle : public Shape {
+    double base, height;
+public:
+    Triangle(double b, double h) : base(b), height(h) {}
+    double area() override { return 0.5 * base * height; }
+    ~Triangle() { cout << "Triangle destroyed\n"; }
+};
+
+int main() {
+    // Shape s;   // ERROR: cannot create object of an abstract class
+
+    // Base class pointers pointing to derived objects
+    Shape* shapes[3];
+    shapes[0] = new Circle(5);
+    shapes[1] = new Rectangle(4, 6);
+    shapes[2] = new Triangle(10, 3);
+
+    const char* names[3] = {"Circle (r=5)", "Rectangle (4x6)", "Triangle (b=10,h=3)"};
+
+    cout << "--- Areas (correct function chosen at RUNTIME) ---\n";
+    for (int i = 0; i < 3; i++) {
+        cout << names[i] << " area = " << shapes[i]->area() << endl;
+    }
+
+    cout << "\n--- Deleting objects ---\n";
+    for (int i = 0; i < 3; i++) {
+        delete shapes[i];
+    }
+    return 0;
+}
